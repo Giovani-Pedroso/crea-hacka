@@ -1,0 +1,6 @@
+.venv/
+.env
+**/__pychace__/*
+**/tmp/*
+/img/*
+
