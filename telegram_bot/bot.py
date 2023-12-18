@@ -1,3 +1,6 @@
+from cv2.gapi import sepFilter
+from pathlib import Path
+from pytesseract.pytesseract import re
 from telegram import Update
 from telegram.ext import ApplicationBuilder, ContextTypes, CommandHandler, MessageHandler, filters
 from telegram.constants import ParseMode
@@ -32,6 +35,11 @@ class Bot:
         self.rg_nascimento=""
         self.rg_cpf=""
         self.rg_da_expedicao=""
+
+        # se a pasta tmp não existir, era cria-la
+        if not os.path.exists('./tmp/'):
+            print("Criando a pasta tmp")
+            os.makedirs('./tmp/')
 
     async def _start(self, update: Update, context: ContextTypes.DEFAULT_TYPE):
         self.tipo_de_analise ="nda"
@@ -75,6 +83,7 @@ class Bot:
         #Se remover a linha abaixo o codigo para de funcionar
         print (type(update.message.photo))
 
+
         #Salva a imagem para a analize
         file = await context.bot.getFile(file_id)
         file_path = f'./tmp/{file_id}.jpg'
@@ -86,6 +95,12 @@ class Bot:
             frente = check_docs.rg_frente(file_path)
             self.rg_nome = frente['nome']
             self.rg_nascimento = frente['nasDate']
+
+            if self.rg_nome == None or self.rg_nascimento == None:
+                await update.message.reply_text(text_messages.IMG_ERRO)
+                os.remove(file_path)
+                return
+
             print(f'nome: {self.rg_nome }')
             print(f'nascimento: {self.rg_nascimento }')
             await update.message.reply_text(f"Apenas para confirmar\n*Seu nome* é {self.rg_nome}\n*Você* nasceu no dia {self.rg_nascimento}",
@@ -95,18 +110,29 @@ class Bot:
                                             parse_mode=ParseMode.MARKDOWN_V2)
             self.tipo_de_analise = "rg_costas"
 
+            os.remove(file_path)
+            return
+
         if self.tipo_de_analise =="rg_costas":
             costas = check_docs.rg_costas(file_path)
             print(f"costas {costas}")
             self.rg_numero = costas['rg']
             self.rg_cpf = costas['cpf']
             self.rg_da_expedicao = costas['data_expedicao']
+
+            if self.rg_da_expedicao == None or self.rg_cpf == None or self.rg_da_expedicao == None:
+                await update.message.reply_text(text_messages.IMG_ERRO)
+                os.remove(file_path)
+                return
+
             await update.message.reply_text(f"""Apenas para confirmar\n*O numero do seu cpf é:*{self.rg_cpf}\n*O numero do seu rg é:* {self.rg_numero}\n*A data de emição é:* {self.rg_da_expedicao}""",
                                             parse_mode=ParseMode.MARKDOWN_V2)
 
             await update.message.reply_text(text=text_messages.REGISTRO_ERRO_RG_COSTAS,
                                             parse_mode=ParseMode.MARKDOWN_V2)
             self.tipo_de_analise = "curriculo"
+            os.remove(file_path)
+            return
 
         elif self.tipo_de_analise =="curriculo":
             ...
@@ -117,7 +143,6 @@ class Bot:
         else:
             ...
 
-        os.remove(file_path)
 
         
 

@@ -1,4 +1,6 @@
 opencv-python
+flask
+twilio
 pytesseract
 python-dotenv 
 python-telegram-bot

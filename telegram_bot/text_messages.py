@@ -10,3 +10,5 @@ REGISTRO_DIPLOMA = "artsn"
 REGISTRO_RG_FRENTE="Primeiro vamos precisar de uma foto da frente do seu RG como mostrado na imagem abaixo"
 REGISTRO_ERRO_RG_FRENTE=f"Se as infromações estiverem corretos envie uma todo da parte de tras de seu rg se não use o comando */rgFrente* para enviar outra foto"
 REGISTRO_ERRO_RG_COSTAS=f"Se as infromações estiverem corretos envie uma todo da parte de tras de seu rg se não use o comando */rgCostas* para enviar outra foto"
+
+IMG_ERRO="Desculpe não foi possivel reconhecer a imagem, por favor envie outra"
